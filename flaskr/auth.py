@@ -6,6 +6,7 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from flaskr.db import get_db
+from flaskr.mdb import get_db, User, Post
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -24,11 +25,8 @@ def register():
 
         if error is None:
             try:
-                db.execute(
-                    "INSERT INTO user (username, password) VALUES (?, ?)",
-                    (username, generate_password_hash(password)),
-                )
-                db.commit()
+                user = User(username=username,password=generate_password_hash(password))
+                user.save()
             except db.IntegrityError:
                 error = f"User {username} is already registered."
             else:
